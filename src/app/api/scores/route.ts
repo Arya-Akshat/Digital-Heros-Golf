@@ -16,9 +16,9 @@ export async function POST(req: Request) {
     const score = parseInt(body.score);
     const date = body.date ? new Date(body.date) : new Date();
 
-    if (isNaN(score) || score < 0 || score > 150) {
+    if (isNaN(score) || score < 1 || score > 45) {
       return NextResponse.json(
-        { error: "Invalid score. Must be between 0 and 150." },
+        { error: "Invalid score. Must be between 1 and 45 (Stableford)." },
         { status: 400 }
       );
     }

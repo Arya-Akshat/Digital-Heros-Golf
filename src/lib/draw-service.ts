@@ -1,47 +1,107 @@
 // src/lib/draw-service.ts
 import { prisma } from "@/lib/prisma";
 
-export interface DrawResult {
-  numbers: number[];
-  winners: {
-    tier5: number;
-    tier4: number;
-    tier3: number;
-  };
-  totalPrizePool: number;
-  jackpot: number;
-}
-
 export class DrawService {
   /**
-   * Generates 5 unique random numbers between 1 and 45.
+   * Generates random winning numbers for a draw
+   * Rule: 5 numbers between 1 and 45 (Stableford range)
    */
-  static generateNumbers(): number[] {
+  static generateWinningNumbers(): number[] {
     const numbers = new Set<number>();
     while (numbers.size < 5) {
       numbers.add(Math.floor(Math.random() * 45) + 1);
     }
-    return Array.from(numbers).sort((a, b) => a - b);
+    const arr = Array.from(numbers).sort((a, b) => a - b);
+    return arr;
   }
 
   /**
-   * Calculates matches between user scores and draw numbers.
-   * Assumes strict set matching for now (all unique).
-   * If a user has duplicate scores {36, 36, ...}, and draw has {36}, 
-   * we count unique matches.
+   * Executes a draw for the given date
+   * 1. Generates winning numbers
+   * 2. Snapshots user scores that match the criteria
+   * 3. Determines winners based on matches (3, 4, or 5)
    */
-  static calculateMatch(userScores: number[], drawNumbers: number[]): number {
-    const uniqueUserScores = new Set(userScores);
-    const uniqueDrawNumbers = new Set(drawNumbers);
-    
-    let matchCount = 0;
-    for (const score of uniqueUserScores) {
-      if (uniqueDrawNumbers.has(score)) {
-        matchCount++;
+  static async runDraw(jackpotAmount = 5000) {
+    const winningNumbers = this.generateWinningNumbers();
+    const winningNumbersString = winningNumbers.join(",");
+
+    // Create the Draw record
+    const draw = await prisma.draw.create({
+      data: {
+        drawDate: new Date(),
+        status: "COMPLETED",
+        winningNumbers: winningNumbersString,
+        jackpotAmount: jackpotAmount,
+        totalPrizePool: jackpotAmount, // Simplified for MVP
+      },
+    });
+
+    console.log(`Draw Created: ${draw.id} with numbers: ${winningNumbersString}`);
+
+    // Get all active users with at least one score
+    // In a real app, you'd filter by subscription status too
+    const users = await prisma.user.findMany({
+      include: {
+        scores: {
+          orderBy: { date: 'desc' },
+          take: 5, // Only consider latest 5 scores
+        },
+        subscription: true
+      },
+      where: {
+        subscription: {
+          status: "ACTIVE"
+        }
       }
+    });
+
+    for (const user of users) {
+        if (!user.scores || user.scores.length === 0) continue;
+
+        // Collect unique scores from the last 5
+        const userScores = user.scores.map(s => s.score);
+        const uniqueUserScores = new Set(userScores);
+        let matchCount = 0;
+
+        // Check against winning numbers
+        uniqueUserScores.forEach(score => {
+          if (winningNumbers.includes(score)) {
+            matchCount++;
+          }
+        });
+
+        // Determine Win Tier
+        let prize = 0;
+        if (matchCount === 5) prize = Number(jackpotAmount) * 0.40;
+        else if (matchCount === 4) prize = Number(jackpotAmount) * 0.35;
+        else if (matchCount === 3) prize = Number(jackpotAmount) * 0.25;
+
+        // Create Winner Record if applicable
+        if (prize > 0) {
+            await prisma.winner.create({
+              data: {
+                drawId: draw.id,
+                userId: user.id,
+                matchCount: matchCount,
+                prizeAmount: prize,
+                status: "PENDING_PROOF",
+              },
+            });
+        }
+
+       // Record entry (snapshot)
+       await prisma.drawEntry.create({
+        data: {
+            drawId: draw.id,
+            userId: user.id,
+            scoreSnapshot: user.scores[0]?.score || 0 
+        }
+     });
     }
-    return matchCount;
+
+    return draw;
   }
+}
 
   /**
    * Runs a simulation for a given draw.

@@ -44,13 +44,13 @@ export default function EnterScorePage() {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm text-muted-foreground">Score</label>
+              <label className="text-sm text-muted-foreground">Stableford Score (1-45)</label>
               <Input
                 type="number"
                 value={score}
                 onChange={(e) => setScore(e.target.value)}
-                min="0"
-                max="150"
+                min="1"
+                max="45"
                 required
                 className="bg-black/20 border-white/5"
               />
