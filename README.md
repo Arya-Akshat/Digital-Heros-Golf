@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Digital Heroes Golf
+
+Welcome to **Digital Heroes Golf**, a premium, subscription-based golf charity platform. 
+This application is built with a modern stack focusing on performance, scalability, and a "liquid crystal" aesthetic.
+
+## Tech Stack
+
+- **Framework**: [Next.js 16](https://nextjs.org) (App Router)
+- **Language**: TypeScript
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com) + Framer Motion
+- **Database**: PostgreSQL (via Prisma ORM)
+- **Authentication**: NextAuth.js (Auth.js)
+- **Icons**: Lucide React
+- **UI Components**: Custom Shadcn/Radix Primitives
+
+## Project Structure
+
+- `src/app`: App Router pages and layouts.
+- `src/components`: Reusable UI components.
+- `src/lib`: Utilities and helpers.
+- `prisma`: Database schema and migrations.
+- `src/services`: Business logic and backend services.
 
 ## Getting Started
 
-First, run the development server:
+1.  **Install Dependencies**:
+    ```bash
+    npm install
+    ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+2.  **Environment Setup**:
+    Copy `.env` (create one if missing) and configure:
+    - `DATABASE_URL` (PostgreSQL connection string)
+    - `NEXTAUTH_SECRET`
+    - `NEXTAUTH_URL`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3.  **Database**:
+    Initialize the database:
+    ```bash
+    npx prisma generate
+    npx prisma db push
+    ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+4.  **Run Development Server**:
+    ```bash
+    npm run dev
+    ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Features (Planned)
 
-## Learn More
+1.  **Public Frontend**: Premium landing page, charity discovery.
+2.  **User Dashboard**: Score tracking (last 5 scores), subscription status.
+3.  **Charity System**: Select and support charities.
+4.  **Monthly Draws**: Automated draw logic with 5/4/3 match tiers.
+5.  **Admin Panel**: Full control over users, draws, and payouts.
 
-To learn more about Next.js, take a look at the following resources:
+## Design System
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The UI follows a "Liquid Crystal" theme:
+- Deep midnight backgrounds.
+- Translucent glass panels.
+- Neon cyan/blue accents.
+- Sophisticated typography.

@@ -1,0 +1,141 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+// Core Models
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  passwordHash  String?
+  image         String?
+  role          String    @default("USER")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  subscription  Subscription?
+  scores        GolfScore[]
+  charitySelect UserCharitySelection?
+  winnings      Winner[]
+  auditLogs     AuditLog[]
+  drawEntries   DrawEntry[]
+}
+
+model Subscription {
+  id              String             @id @default(cuid())
+  userId          String             @unique
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status          String             @default("INACTIVE")
+  plan            String             @default("MONTHLY")
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+  cancelAtPeriodEnd  Boolean         @default(false)
+  stripeCustomerId   String?
+  stripeSubscriptionId String?       @unique
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+}
+
+model Charity {
+  id            String   @id @default(cuid())
+  name          String
+  slug          String   @unique
+  description   String
+  imageUrl      String?
+  websiteUrl    String?
+  featured      Boolean  @default(false)
+  active        Boolean  @default(true)
+  totalRaised   Decimal  @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  supporters    UserCharitySelection[]
+}
+
+model UserCharitySelection {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  charityId        String
+  charity          Charity  @relation(fields: [charityId], references: [id])
+  contributionPercent Int   @default(10) // Minimum 10%
+  isAnonymous      Boolean  @default(false)
+  updatedAt        DateTime @updatedAt
+}
+
+model GolfScore {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  score     Int      // Stableford score (1-45 based on rules)
+  date      DateTime
+  createdAt DateTime @default(now())
+  
+  @@index([userId, date])
+}
+
+model Draw {
+  id              String     @id @default(cuid())
+  drawDate        DateTime
+  status          String     @default("SCHEDULED")
+  winningNumbers  String     // CSV or JSON of winning numbers
+  jackpotAmount   Decimal
+  totalPrizePool  Decimal    @default(0)
+  rolledOver      Boolean    @default(false)
+  rolloverAmount  Decimal    @default(0)
+  
+  winners         Winner[]
+  entries         DrawEntry[]
+  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+}
+
+// Determine eligibility snapshot for a draw
+model DrawEntry {
+  id        String   @id @default(cuid())
+  drawId    String
+  draw      Draw     @relation(fields: [drawId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  scoreSnapshot Int? // The score used for this draw
+  
+  @@unique([drawId, userId])
+}
+
+model Winner {
+  id            String       @id @default(cuid())
+  drawId        String
+  draw          Draw         @relation(fields: [drawId], references: [id])
+  userId        String
+  user          User         @relation(fields: [userId], references: [id])
+  prizeAmount   Decimal
+  matchCount    Int          // 3, 4, or 5
+  status        String       @default("PENDING_PROOF")
+  proofImageUrl String?
+  adminNotes    String?
+  paidAt        DateTime?
+  
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?  // Admin or user who performed action
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  details   String?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
