@@ -15,7 +15,7 @@ export default async function CharitiesPage() {
     id: c.id,
     name: c.name,
     description: c.description || null,
-    logo: c.logo || null
+    logo: c.imageUrl || null
   }));
 
   return (
