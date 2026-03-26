@@ -46,6 +46,13 @@ This application is built with a modern stack focusing on performance, scalabili
     npm run dev
     ```
 
+## Demo Admin Access
+
+This project is only for assignment/demo purposes and not for production use.
+
+- Admin Email: `admin@example.com`
+- Admin Password: `admin`
+
 ## Features (Planned)
 
 1.  **Public Frontend**: Premium landing page, charity discovery.
