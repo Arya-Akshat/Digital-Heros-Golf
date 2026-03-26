@@ -9,6 +9,33 @@ import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
+function NavLink({
+  href,
+  children,
+  pathname,
+  onNavigate,
+}: {
+  href: string;
+  children: React.ReactNode;
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const isActive = pathname === href;
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        "text-sm font-medium transition-colors hover:text-cyan-400",
+        isActive ? "text-cyan-400" : "text-muted-foreground"
+      )}
+      onClick={onNavigate}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function Navbar() {
   const { data: session } = useSession();
   const pathname = usePathname();
@@ -16,22 +43,6 @@ export function Navbar() {
 
   const isAuthPage = pathname === "/login" || pathname === "/signup";
   if (isAuthPage) return null;
-
-  const NavLink = ({ href, children }: { href: string; children: React.ReactNode }) => {
-    const isActive = pathname === href;
-    return (
-      <Link
-        href={href}
-        className={cn(
-          "text-sm font-medium transition-colors hover:text-cyan-400",
-          isActive ? "text-cyan-400" : "text-muted-foreground"
-        )}
-        onClick={() => setIsOpen(false)}
-      >
-        {children}
-      </Link>
-    );
-  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-background/80 backdrop-blur-md">
@@ -42,9 +53,9 @@ export function Navbar() {
         
         {/* Desktop Menu */}
         <div className="hidden md:flex items-center gap-8">
-          <NavLink href="/charities">Charities</NavLink>
-          <NavLink href="/draws">Draws</NavLink>
-          <NavLink href="/pricing">Pricing</NavLink>
+          <NavLink href="/charities" pathname={pathname} onNavigate={() => setIsOpen(false)}>Charities</NavLink>
+          <NavLink href="/draws" pathname={pathname} onNavigate={() => setIsOpen(false)}>Draws</NavLink>
+          <NavLink href="/pricing" pathname={pathname} onNavigate={() => setIsOpen(false)}>Pricing</NavLink>
           
           <div className="flex items-center gap-4 ml-4">
             {session ? (
@@ -87,9 +98,9 @@ export function Navbar() {
       {isOpen && (
         <div className="md:hidden border-b border-white/5 bg-background/95 backdrop-blur-xl px-4 py-4 space-y-4 animate-accordion-down">
           <div className="flex flex-col gap-4">
-            <NavLink href="/charities">Charities</NavLink>
-            <NavLink href="/draws">Draws</NavLink>
-            <NavLink href="/pricing">Pricing</NavLink>
+            <NavLink href="/charities" pathname={pathname} onNavigate={() => setIsOpen(false)}>Charities</NavLink>
+            <NavLink href="/draws" pathname={pathname} onNavigate={() => setIsOpen(false)}>Draws</NavLink>
+            <NavLink href="/pricing" pathname={pathname} onNavigate={() => setIsOpen(false)}>Pricing</NavLink>
             <hr className="border-white/5" />
              {session ? (
               <>

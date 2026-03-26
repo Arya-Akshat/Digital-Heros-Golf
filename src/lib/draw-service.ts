@@ -15,6 +15,19 @@ export class DrawService {
     return arr;
   }
 
+  static calculateMatch(scores: number[], winningNumbers: number[]): number {
+    const uniqueScores = new Set(scores);
+    let matchCount = 0;
+
+    uniqueScores.forEach((score) => {
+      if (winningNumbers.includes(score)) {
+        matchCount++;
+      }
+    });
+
+    return matchCount;
+  }
+
   /**
    * Executes a draw for the given date
    * 1. Generates winning numbers
@@ -58,17 +71,8 @@ export class DrawService {
     for (const user of users) {
         if (!user.scores || user.scores.length === 0) continue;
 
-        // Collect unique scores from the last 5
-        const userScores = user.scores.map(s => s.score);
-        const uniqueUserScores = new Set(userScores);
-        let matchCount = 0;
-
-        // Check against winning numbers
-        uniqueUserScores.forEach(score => {
-          if (winningNumbers.includes(score)) {
-            matchCount++;
-          }
-        });
+        const userScores = user.scores.map((score) => score.score);
+        const matchCount = this.calculateMatch(userScores, winningNumbers);
 
         // Determine Win Tier
         let prize = 0;
@@ -101,12 +105,11 @@ export class DrawService {
 
     return draw;
   }
-}
 
   /**
    * Runs a simulation for a given draw.
    */
-  static async simulateDraw(drawId: string) {
+  static async simulateDraw() {
     // 1. Fetch eligible users (active sub + >= 5 scores)
     // Actually policy is "latest 5 scores". If user has < 5, maybe ineligible?
     // Assume minimum 5 scores required.
@@ -128,7 +131,7 @@ export class DrawService {
     const validEntries = eligibleUsers.filter(u => u.scores.length === 5);
     
     // 2. Generate Draw Numbers
-    const numbers = this.generateNumbers();
+    const numbers = this.generateWinningNumbers();
 
     // 3. Calculate Winners
     let tier5 = 0;
@@ -136,7 +139,7 @@ export class DrawService {
     let tier3 = 0;
 
     for (const user of validEntries) {
-        const scores = user.scores.map(s => s.score);
+        const scores = user.scores.map((score) => score.score);
         const matches = this.calculateMatch(scores, numbers);
 
         if (matches === 5) tier5++;

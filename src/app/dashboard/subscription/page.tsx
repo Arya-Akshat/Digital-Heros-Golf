@@ -9,7 +9,7 @@ import { ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useState } from "react";
 
 export default function SubscriptionPage() {
-  const { data: session } = useSession();
+  useSession();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 

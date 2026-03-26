@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { prisma } from "@/lib/prisma";
 import { Users, CreditCard, Heart, Trophy } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboard() {
   const [userCount, subCount, charityCount, drawCount] = await Promise.all([
     prisma.user.count(),

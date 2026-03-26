@@ -30,12 +30,12 @@ This application is built with a modern stack focusing on performance, scalabili
 
 2.  **Environment Setup**:
     Copy `.env` (create one if missing) and configure:
-    - `DATABASE_URL` (PostgreSQL connection string)
+    - `DATABASE_URL` (PostgreSQL connection string, for example your Render external database URL)
     - `NEXTAUTH_SECRET`
     - `NEXTAUTH_URL`
 
 3.  **Database**:
-    Initialize the database:
+    Initialize the PostgreSQL database:
     ```bash
     npx prisma generate
     npx prisma db push

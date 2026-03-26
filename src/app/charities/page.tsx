@@ -1,9 +1,8 @@
 // src/app/charities/page.tsx
 import { prisma } from "@/lib/prisma";
-import { Button } from "@/components/ui/button";
-import { Heart } from "lucide-react";
-import Image from "next/image";
 import CharityGrid from "./CharityGrid";
+
+export const dynamic = "force-dynamic";
 
 export default async function CharitiesPage() {
   const charities = await prisma.charity.findMany({

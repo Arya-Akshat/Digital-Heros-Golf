@@ -40,7 +40,7 @@ export async function POST(req: Request) {
   }
 }
 
-export async function GET(req: Request) {
+export async function GET() {
     // Admin list might include inactive ones?
     // For now, simple list
     const charities = await prisma.charity.findMany({

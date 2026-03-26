@@ -19,7 +19,7 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Charity ID is required" }, { status: 400 });
     }
 
-    let percent = parseInt(contributionPercent);
+    const percent = parseInt(contributionPercent);
     if (isNaN(percent) || percent < 10 || percent > 100) {
         return NextResponse.json({ error: "Contribution must be between 10% and 100%" }, { status: 400 });
     }
